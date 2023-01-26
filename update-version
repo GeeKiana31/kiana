@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 touch version
 date > version
 
