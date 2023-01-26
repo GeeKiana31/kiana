@@ -1,0 +1,11 @@
+#!/bin/bash
+
+
+touch version
+date > version
+
+git pull
+git add update-version
+git add version
+git commit -m "updated version" 
+git push
