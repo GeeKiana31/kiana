@@ -1,22 +1,22 @@
 classdef SignalDetection
     properties
-        hits
-        misses
+        Hits
+        Misses
         FalseAlarms
         CorrectRejections
     end
 
     methods
-        function obj = SignalDetection(hits, misses, FalseAlarms, ...
+        function obj = SignalDetection(Hits, Misses, FalseAlarms, ...
                 CorrectRejections)
-            obj.hits = hits;
-            obj.misses = misses;
+            obj.Hits = Hits;
+            obj.Misses = Misses;
             obj.FalseAlarms = FalseAlarms;
             obj.CorrectRejections = CorrectRejections;
         end
 
         function HitRate = HitRate(obj)
-            HitRate = obj.hits / (obj.hits + obj.misses);
+            HitRate = obj.Hits / (obj.Hits + obj.Misses);
         end
 
         function FARate = FARate(obj)
@@ -24,12 +24,12 @@ classdef SignalDetection
                 obj.CorrectRejections);
         end
 
-        function d_prime = d_prime(obj)
-            d_prime = norminv(obj.HitRate) - norminv(obj.FARate);
+        function D_Prime = D_Prime(obj)
+            D_Prime = norminv(obj.HitRate) - norminv(obj.FARate);
         end
 
-        function criterion = criterion(obj)
-            criterion = -0.5 * (norminv(obj.HitRate) + norminv(obj.FARate));
+        function Criterion = Criterion(obj)
+            Criterion = -0.5 * (norminv(obj.HitRate) + norminv(obj.FARate));
         end
     end
 end
