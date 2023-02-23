@@ -39,13 +39,16 @@ function testCriterionNonzero(testCase)
 end
 
 %% Object Corruption Test
-function testCorruptCriterionZero(testCase)
+function testCorruption(testCase)
 
     obj = SignalDetection(5, 5, 5, 5);
-    obj.Hits = 1;
-    obj.Misses = 2;
-    obj.FalseAlarms = 3;
-    obj.CorrectRejections = 4;
+    actual = obj.criterion();
+    expected = 0;
+    testCase.verifyEqual(actual, expected, 'AbsTol', 1e-6);
+    obj.Hits = 15;
+    obj.Misses = 10;
+    obj.FalseAlarms = 15;
+    obj.CorrectRejections = 5;
     actual = obj.criterion();
     expected = 0;
     testCase.verifyEqual(actual, expected, 'AbsTol', 1e-6);
