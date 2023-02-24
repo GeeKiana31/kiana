@@ -39,13 +39,13 @@ classdef SignalDetection
                 obj1.CorrectRejections + obj2.CorrectRejections);
         end
 
-        function scaled = mtimes(obj, k)
-            scaled = SignalDetection(obj.Hits * k, obj.Misses * k, ...
+        function Scaled = mtimes(obj, k)
+            Scaled = SignalDetection(obj.Hits * k, obj.Misses * k, ...
                 obj.FalseAlarms * k, obj.CorrectRejections * k);
         end
 
 %% Generate Plots
-        function plot_roc = plot_roc(obj)
+        function Plot_ROC = Plot_ROC(obj)
             xpoints = [0, obj.FARate, 1];
             ypoints = [0, obj.HitRate, 1];
             plot(xpoints, ypoints)
@@ -55,7 +55,7 @@ classdef SignalDetection
             title('ROC Curve')
         end
 
-        function plot_sdt = plot_sdt(obj)
+        function Plot_SDT = Plot_SDT(obj)
             x = [-5:.1:5];
             Noise = normpdf(x, 0, 1);
             Signal = normpdf(x, obj.D_Prime, 1);
