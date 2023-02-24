@@ -62,7 +62,7 @@ classdef SignalDetection
             
             plot(x, Noise, x, Signal)
             xline(obj.D_Prime/2 + obj.Criterion, '--k', 'HandleVisibility','off')
-            line([0 obj.D_Prime],[findpeaks(Noise), findpeaks(Signal)])
+            line([0 obj.D_Prime],[max(Noise), max(Signal)])
             ylim([0, .5])
             xlabel('Signal Strength')
             ylabel('Probability')
