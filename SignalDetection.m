@@ -59,11 +59,15 @@ classdef SignalDetection
             x = [-5:.1:5];
             Noise = normpdf(x, 0, 1);
             Signal = normpdf(x, obj.D_Prime, 1);
+            
             plot(x, Noise, x, Signal)
-            ylim([0, .5])
             xline(obj.D_Prime + obj.Criterion, '--k', 'HandleVisibility','off')
             line([0 obj.D_Prime],[findpeaks(Noise), findpeaks(Signal)])
+            ylim([0, .5])
+            xlabel('Signal Strength')
+            ylabel('Probability')
             legend('Noise', 'Signal')
+            title('Signal Detection Theory Plot')
         end
     end
 end
