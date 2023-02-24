@@ -42,12 +42,12 @@ end
 function testCorruption(testCase)
 
     obj = SignalDetection(5, 5, 5, 5);
-    actual = obj.Criterion();
     obj.Hits = 15;
     obj.Misses = 10;
     obj.FalseAlarms = 15;
     obj.CorrectRejections = 5;
-    expected = obj.Criterion();
+    actual = obj.Criterion();
+    expected = -0.463918426665941;
     testCase.verifyEqual(actual, expected, 'AbsTol', 1e-6);
 
 end
