@@ -69,5 +69,52 @@ classdef SignalDetection
             legend('Noise', 'Signal')
             title('Signal Detection Theory Plot')
         end
+        
+        function nLogLikelihood = sdt.nLogLikelihood(obj)
+            nLogLikelihood = -obj.Hits*log(obj.HitRate) - obj.Misses*log(1 - obj.HitRate)...
+                - obj.FalseAlarms*log(obj.FARate) - obj.CorrectRejections*...
+                log(1 - obj.FARate);
+        end
+    end
+
+    methods (Static)
+        function simulate = simulate(dprime, criteriaList, ...
+                signalCount, noiseCount)
+            criterion_k = zeros(size(criteriaList));
+            hit_rate = zeros(size(criteriaList));
+            fa_rate = zeros(size(criteriaList));
+            sdtList = zeros(size(SignalDetection));
+            for i = 1:length(criteriaList)
+                criterion_k(i) = criteriaList(i) + (dprime / 2)
+                hit_rate(i) = 1 - normcdf(criterion_k(i) - dprime);
+                fa_rate(i) = normcdf(criterion_k - dprime);
+                Hits = sum(binornd(signalCount, hit_rate(i)));
+                Misses = signalCount - Hits;
+                FalseAlarms = sum(binornd(noiseCount, fa_rate(i)));
+                CorrectRejections = noiseCount - FalseAlarms;
+                sdtList(i) = SignalDetection(Hits, Misses, ...
+                    FlaseAlarms, CorrectRejections);
+            end
+        end
+
+        function plot_roc = plot_roc(sdtList)
+            for i = 1:length(sdtList)
+                plot(FARate(sdtList(i)), HitRate(i))
+            end
+            xlim([0, 1]);
+            xlabel('False Alarm Rate')
+            ylabel('Hit Rate')
+            title('ROC Curve')
+        end
+
+        function hitRate = rocCurve(falseAlarmRate, a)
+            hitRate = zeros(size(falseAlarmRate));
+            for i = 1:length(falseAlarmRate)
+                hitRate(i) = normcdf(a + norminv(falseAlarmRate(i)));
+            end
+        end
+
+        function rocLoss = rocLoss(a, sdtList)
+
     end
 end
