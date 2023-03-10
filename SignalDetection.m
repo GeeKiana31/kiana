@@ -82,7 +82,7 @@ classdef SignalDetection
                 signalCount, noiseCount)
             sdtList = [];
             for i = 1:length(criteriaList)
-                criterion_k = criteriaList(i) + (dprime / 2)
+                criterion_k = criteriaList(i) + (dprime / 2);
                 hit_rate = 1 - normcdf(criterion_k - dprime);
                 fa_rate = normcdf(criterion_k - dprime);
 
@@ -96,9 +96,13 @@ classdef SignalDetection
         end
 
         function plot_roc = plot_roc(sdtList)
+            x = zeros(length(sdtList));
+            y = zeros(length(sdtList));
             for i = 1:length(sdtList)
-                plot(sdtList.FARate(sdtList(i)), sdtList.HitRate(i))
+                x(i) = FARate(sdtList(i));
+                y(i) = HitRate(sdtList(i));
             end
+            scatter(x,y)
             xlim([0, 1]);
             xlabel('False Alarm Rate')
             ylabel('Hit Rate')
@@ -112,8 +116,21 @@ classdef SignalDetection
             end
         end
 
-        %function rocLoss = rocLoss(a, sdtList)
+        function rocLoss = rocLoss(a, sdtList)
+            ell = zeros(length(sdtList));
+            for i = 1:length(sdtList)
+                obs_FARate = FARate(sdtList(i));
+                pre_HitRate = SignalDetection.rocCurve(obs_FARate, a);
+                ell(i) = nLogLikelihood(sdtList(i), obs_FARate, pre_HitRate);
+            end
+            rocLoss = sum(ell);
+            rocLoss = rocLoss(1);
+        end
 
-        %end
+        function fit_roc = fit_roc(sdtList)
+            fun = @(a) SignalDetection.rocLoss(a, sdtList);
+            start = [0];
+            fit_roc = fminsearch(fun, start)
+        end
     end
 end
