@@ -112,7 +112,7 @@ classdef SignalDetection
             for i = 1:length(sdtList)
                 obs_FARate = FARate(sdtList(i));
                 pre_HitRate = SignalDetection.rocCurve(obs_FARate, a);
-                ell = [ell; nLogLikelihood(sdtList(i), obs_FARate, pre_HitRate)];
+                ell = [ell; nLogLikelihood(sdtList(i), pre_HitRate, obs_FARate)];
             end
             rocLoss = sum(ell);
         end
