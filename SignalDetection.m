@@ -45,16 +45,6 @@ classdef SignalDetection
         end
 
 %% Generate Plots
-        function Plot_ROC = Plot_ROC(obj)
-            xpoints = [0, obj.FARate, 1];
-            ypoints = [0, obj.HitRate, 1];
-            plot(xpoints, ypoints)
-            xlim([0, 1]);
-            xlabel('False Alarm Rate')
-            ylabel('Hit Rate')
-            title('ROC Curve')
-        end
-
         function Plot_SDT = Plot_SDT(obj)
             x = [-5:.1:5];
             Noise = normpdf(x, 0, 1);
@@ -84,14 +74,15 @@ classdef SignalDetection
             for i = 1:length(criteriaList)
                 criterion_k = criteriaList(i) + (dprime / 2);
                 hit_rate = 1 - normcdf(criterion_k - dprime);
-                fa_rate = normcdf(criterion_k - dprime);
+                fa_rate = 1 - normcdf(criterion_k);
 
                 Hits = binornd(signalCount, hit_rate);
                 Misses = signalCount - Hits;
                 FalseAlarms = binornd(noiseCount, fa_rate);
                 CorrectRejections = noiseCount - FalseAlarms;
 
-                sdtList = [sdtList; SignalDetection(Hits, Misses, FalseAlarms, CorrectRejections)];
+                sdtList = [sdtList; SignalDetection(Hits, Misses,...
+                    FalseAlarms, CorrectRejections)];
             end
         end
 
@@ -112,25 +103,24 @@ classdef SignalDetection
         function hitRate = rocCurve(falseAlarmRate, a)
             hitRate = [];
             for i = 1:length(falseAlarmRate)
-                hitRate = [hitRate; normcdf(a + norminv(falseAlarmRate(i)))];
+                hitRate = [hitRate; normcdf(a + norminv(falseAlarmRate))];
             end
         end
 
         function rocLoss = rocLoss(a, sdtList)
-            ell = zeros(length(sdtList));
+            ell = [];
             for i = 1:length(sdtList)
                 obs_FARate = FARate(sdtList(i));
                 pre_HitRate = SignalDetection.rocCurve(obs_FARate, a);
-                ell(i) = nLogLikelihood(sdtList(i), obs_FARate, pre_HitRate);
+                ell = [ell; nLogLikelihood(sdtList(i), obs_FARate, pre_HitRate)];
             end
             rocLoss = sum(ell);
-            rocLoss = rocLoss(1);
         end
 
         function fit_roc = fit_roc(sdtList)
-            fun = @(a) SignalDetection.rocLoss(a, sdtList);
-            start = [0];
-            fit_roc = fminsearch(fun, start)
+            fun = @(a)SignalDetection.rocLoss(a, sdtList);
+            start = 0;
+            fit_roc = fminsearch(fun, start);
         end
     end
 end
