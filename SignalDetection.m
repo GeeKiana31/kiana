@@ -59,7 +59,7 @@ classdef SignalDetection
             legend('Noise', 'Signal')
             title('Signal Detection Theory Plot')
         end
-        
+%% Find "ell"
         function nLogLikelihood = nLogLikelihood(obj, HitRate, FARate)
             nLogLikelihood = - (obj.Hits*log(HitRate) + obj.Misses*log(1 - HitRate)...
                 + obj.FalseAlarms*log(FARate) + obj.CorrectRejections*...
@@ -87,23 +87,26 @@ classdef SignalDetection
         end
 
         function plot_roc = plot_roc(sdtList)
-            x = zeros(length(sdtList));
-            y = zeros(length(sdtList));
+            x = zeros(1, length(sdtList));
+            y = zeros(1, length(sdtList));
             for i = 1:length(sdtList)
                 x(i) = FARate(sdtList(i));
                 y(i) = HitRate(sdtList(i));
             end
-            scatter(x,y)
+            scatter(x, y, 'filled', 'MarkerFaceColor', 'k');
+            line([0, 1], [0, 1], 'LineStyle', '--');
+
             xlim([0, 1]);
+            ylim([0, 1]);
             xlabel('False Alarm Rate')
             ylabel('Hit Rate')
             title('ROC Curve')
         end
 
         function hitRate = rocCurve(falseAlarmRate, a)
-            hitRate = [];
+            hitRate = zeros(1, length(falseAlarmRate));
             for i = 1:length(falseAlarmRate)
-                hitRate = [hitRate; normcdf(a + norminv(falseAlarmRate))];
+                hitRate = normcdf(a + norminv(falseAlarmRate));
             end
         end
 
@@ -121,6 +124,12 @@ classdef SignalDetection
             fun = @(a)SignalDetection.rocLoss(a, sdtList);
             start = 0;
             fit_roc = fminsearch(fun, start);
+
+            FitCurve_x = linspace(0,1);
+            FitCurve_y = SignalDetection.rocCurve(FitCurve_x, fit_roc);
+            plot(FitCurve_x, FitCurve_y, 'LineWidth', 2, 'Color', 'r');
+            hold on
+            SignalDetection.plot_roc(sdtList);
         end
     end
 end
