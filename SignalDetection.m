@@ -70,36 +70,34 @@ classdef SignalDetection
             title('Signal Detection Theory Plot')
         end
         
-        function nLogLikelihood = sdt.nLogLikelihood(obj)
-            nLogLikelihood = -obj.Hits*log(obj.HitRate) - obj.Misses*log(1 - obj.HitRate)...
-                - obj.FalseAlarms*log(obj.FARate) - obj.CorrectRejections*...
-                log(1 - obj.FARate);
+        function nLogLikelihood = nLogLikelihood(obj, HitRate, FARate)
+            nLogLikelihood = - (obj.Hits*log(HitRate) + obj.Misses*log(1 - HitRate)...
+                + obj.FalseAlarms*log(FARate) + obj.CorrectRejections*...
+                log(1 - FARate));
         end
     end
 
     methods (Static)
-        function simulate = simulate(dprime, criteriaList, ...
+        function sdtList = simulate(dprime, criteriaList, ...
                 signalCount, noiseCount)
-            criterion_k = zeros(size(criteriaList));
-            hit_rate = zeros(size(criteriaList));
-            fa_rate = zeros(size(criteriaList));
-            sdtList = zeros(size(SignalDetection));
+            sdtList = [];
             for i = 1:length(criteriaList)
-                criterion_k(i) = criteriaList(i) + (dprime / 2)
-                hit_rate(i) = 1 - normcdf(criterion_k(i) - dprime);
-                fa_rate(i) = normcdf(criterion_k - dprime);
-                Hits = sum(binornd(signalCount, hit_rate(i)));
+                criterion_k = criteriaList(i) + (dprime / 2)
+                hit_rate = 1 - normcdf(criterion_k - dprime);
+                fa_rate = normcdf(criterion_k - dprime);
+
+                Hits = binornd(signalCount, hit_rate);
                 Misses = signalCount - Hits;
-                FalseAlarms = sum(binornd(noiseCount, fa_rate(i)));
+                FalseAlarms = binornd(noiseCount, fa_rate);
                 CorrectRejections = noiseCount - FalseAlarms;
-                sdtList(i) = SignalDetection(Hits, Misses, ...
-                    FlaseAlarms, CorrectRejections);
+
+                sdtList = [sdtList; SignalDetection(Hits, Misses, FalseAlarms, CorrectRejections)];
             end
         end
 
         function plot_roc = plot_roc(sdtList)
             for i = 1:length(sdtList)
-                plot(FARate(sdtList(i)), HitRate(i))
+                plot(sdtList.FARate(sdtList(i)), sdtList.HitRate(i))
             end
             xlim([0, 1]);
             xlabel('False Alarm Rate')
@@ -108,13 +106,14 @@ classdef SignalDetection
         end
 
         function hitRate = rocCurve(falseAlarmRate, a)
-            hitRate = zeros(size(falseAlarmRate));
+            hitRate = [];
             for i = 1:length(falseAlarmRate)
-                hitRate(i) = normcdf(a + norminv(falseAlarmRate(i)));
+                hitRate = [hitRate; normcdf(a + norminv(falseAlarmRate(i)))];
             end
         end
 
-        function rocLoss = rocLoss(a, sdtList)
+        %function rocLoss = rocLoss(a, sdtList)
 
+        %end
     end
 end
